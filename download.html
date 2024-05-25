@@ -3,113 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pushup Challenge</title>
+    <title>Pushup Tracker</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-            background-color: black;
-            color: white;
-        }
-        .character, .user {
             margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
         }
         .stats {
-            font-size: 18px;
-            margin: 10px;
+            margin: 20px 0;
         }
         .manual-update {
-            margin: 20px;
-        }
-        .manual-update input {
-            margin: 5px;
-        }
-        .highlight {
-            color: #7fff7f; /* Bright green */
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Pushup Challenge</h1>
-    <div class="character">
-        <h2>Character</h2>
+    <div class="container">
+        <h1>Pushup Tracker</h1>
         <div class="stats">
-            <p>Level: <span id="characterLevel" class="highlight">1.00</span></p>
-            <p>Pushups Completed Today: <span id="characterPushupsCompleted" class="highlight">0</span></p>
-            <p>Total Pushups Today: <span id="characterTotalPushups" class="highlight">0</span></p>
-            <p>Total Pushups Since Jan 1, 2024: <span id="characterTotalPushupsSince" class="highlight">1528</span></p>
+            <h2>Your Stats</h2>
+            <p>Total Push-ups: <span id="your-total">1528</span></p>
+            <p>Push-ups Today: <span id="your-today">0</span></p>
+            <button onclick="addPushups()">Add 1 Push-up</button>
+            <div class="manual-update">
+                <h3>Manual Update</h3>
+                <label for="your-total-input">Total Push-ups: </label>
+                <input type="number" id="your-total-input" value="1528">
+                <button onclick="updateYourTotal()">Update Total</button>
+                <br>
+                <label for="your-today-input">Push-ups Today: </label>
+                <input type="number" id="your-today-input" value="0">
+                <button onclick="updateYourToday()">Update Today</button>
+            </div>
         </div>
-    </div>
-    <div class="user">
-        <h2>Your Stats</h2>
         <div class="stats">
-            <p>Your Level: <span id="userLevel" class="highlight">1.00</span></p>
-            <p>Your Pushups Today: <span id="userPushups" class="highlight">0</span></p>
-            <p>Your Total Pushups Today: <span id="userTotalPushups" class="highlight">0</span></p>
-            <p>Your Total Pushups Since Jan 1, 2024: <span id="userTotalPushupsSince" class="highlight">1528</span></p>
-            <button onclick="doPushups()">Do 10 Pushups</button>
-        </div>
-        <div class="manual-update">
-            <h3>Manual Update</h3>
-            <label for="newUserLevel">Set Your Level: </label>
-            <input type="number" id="newUserLevel" step="0.01">
-            <button onclick="updateUserLevel()">Update Level</button>
-            <br>
-            <label for="newUserPushups">Set Your Pushups Today: </label>
-            <input type="number" id="newUserPushups">
-            <button onclick="updateUserPushups()">Update Pushups</button>
-            <br>
-            <label for="newUserTotalPushups">Set Your Total Pushups Today: </label>
-            <input type="number" id="newUserTotalPushups">
-            <button onclick="updateUserTotalPushups()">Update Total Pushups</button>
-            <br>
-            <label for="newUserTotalPushupsSince">Set Your Total Pushups Since Jan 1, 2024: </label>
-            <input type="number" id="newUserTotalPushupsSince">
-            <button onclick="updateUserTotalPushupsSince()">Update Total Pushups Since</button>
-            <br>
-            <label for="newCharacterLevel">Set Character Level: </label>
-            <input type="number" id="newCharacterLevel" step="0.01">
-            <button onclick="updateCharacterLevel()">Update Character Level</button>
-            <br>
-            <label for="newCharacterPushups">Set Character Pushups Today: </label>
-            <input type="number" id="newCharacterPushups">
-            <button onclick="updateCharacterPushups()">Update Character Pushups</button>
-            <br>
-            <label for="newCharacterTotalPushups">Set Character Total Pushups Today: </label>
-            <input type="number" id="newCharacterTotalPushups">
-            <button onclick="updateCharacterTotalPushups()">Update Character Total Pushups</button>
-            <br>
-            <label for="newCharacterTotalPushupsSince">Set Character Total Pushups Since Jan 1, 2024: </label>
-            <input type="number" id="newCharacterTotalPushupsSince">
-            <button onclick="updateCharacterTotalPushupsSince()">Update Character Total Pushups Since</button>
+            <h2>Character Stats</h2>
+            <p>Total Push-ups: <span id="character-total">1528</span></p>
+            <p>Push-ups Today: <span id="character-today">0</span></p>
         </div>
     </div>
 
     <script>
-        function getTorontoTime() {
-            const torontoOffset = -4; // Toronto is UTC-4 during Standard Time
-            const now = new Date();
-            const torontoTime = new Date(now.getTime() + torontoOffset * 60 * 60 * 1000);
-            return torontoTime;
+        const yourTotalPushupsKey = 'yourTotalPushups';
+        const yourTodayPushupsKey = 'yourTodayPushups';
+        const characterTotalPushupsKey = 'characterTotalPushups';
+        const characterTodayPushupsKey = 'characterTodayPushups';
+        const todayKey = 'pushupsDate';
+
+        let yourTotalPushups = parseInt(localStorage.getItem(yourTotalPushupsKey)) || 1528;
+        let yourTodayPushups = parseInt(localStorage.getItem(yourTodayPushupsKey)) || 0;
+        let characterTotalPushups = parseInt(localStorage.getItem(characterTotalPushupsKey)) || 1528;
+        let characterTodayPushups = parseInt(localStorage.getItem(characterTodayPushupsKey)) || 0;
+
+        const today = new Date().toISOString().split('T')[0];
+        const savedDate = localStorage.getItem(todayKey);
+
+        if (savedDate !== today) {
+            yourTodayPushups = 0;
+            characterTodayPushups = 0;
+            localStorage.setItem(todayKey, today);
         }
 
-        const torontoDate = getTorontoTime().toLocaleDateString('en-US', { timeZone: 'America/Toronto' }); // Get current date in MM/DD/YYYY format for Toronto timezone
-        const startDate = new Date('2024-01-01');
-        const currentDate = new Date(torontoDate);
-        const timeDiff = currentDate - startDate;
-        const daysSinceStart = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-        const dailyPushups = 150; // Character does 150 pushups per day
+        document.getElementById('your-total').innerText = yourTotalPushups;
+        document.getElementById('your-today').innerText = yourTodayPushups;
+        document.getElementById('character-total').innerText = characterTotalPushups;
+        document.getElementById('character-today').innerText = characterTodayPushups;
 
-        const lastResetDate = localStorage.getItem('lastResetDate') || torontoDate;
+        function addPushups() {
+            yourTodayPushups += 1;
+            yourTotalPushups += 1;
+            localStorage.setItem(yourTotalPushupsKey, yourTotalPushups);
+            localStorage.setItem(yourTodayPushupsKey, yourTodayPushups);
+            document.getElementById('your-total').innerText = yourTotalPushups;
+            document.getElementById('your-today').innerText = yourTodayPushups;
+        }
 
-        let characterLevel = parseFloat(localStorage.getItem('characterLevel')) || 1.00;
-        let characterPushupsCompleted = lastResetDate === torontoDate ? parseInt(localStorage.getItem('characterPushupsCompleted')) || 0 : 0;
-        let characterTotalPushups = dailyPushups + characterPushupsCompleted;
-        let characterTotalPushupsSince = 1528; // Total pushups done by the character since Jan 1, 2024
+        function updateYourTotal() {
+            const newTotal = parseInt(document.getElementById('your-total-input').value);
+            yourTotalPushups = newTotal;
+            localStorage.setItem(yourTotalPushupsKey, yourTotalPushups);
+            document.getElementById('your-total').innerText = yourTotalPushups;
+        }
 
-        let userLevel = parseFloat(localStorage.getItem('userLevel')) || 1.00;
-        let userPushups = lastResetDate === torontoDate ? parseInt(localStorage.getItem('userPushups')) || 0 : 0;
-        let userTotalPushups = parseInt(localStorage.getItem('userTotalPushups')) || 0;
-        let userTotalPushupsSince = 1528; // Total pushups done by the user since Jan 1, 2024
+        function updateYourToday() {
+            const newToday = parseInt(document.getElementById('your-today-input').value);
+            yourTodayPushups = newToday;
+            localStorage.setItem(yourTodayPushupsKey, yourTodayPushups);
+            document.getElementById('your-today').innerText = yourTodayPushups;
+        }
 
+        function characterPushups() {
+            if (characterTodayPushups < 160) {
+                characterTodayPushups += 10;
+                characterTotalPushups += 10;
+                localStorage.setItem(characterTotalPushupsKey, characterTotalPushups);
+                localStorage.setItem(characterTodayPushupsKey, characterTodayPushups);
+                document.getElementById('character-total').innerText = characterTotalPushups;
+                document.getElementById('character-today').innerText = characterTodayPushups;
+            }
+            scheduleNextCharacterPushups();
+        }
+
+        function scheduleNextCharacterPushups() {
+            const interval = Math.random() * 90 * 60 * 1000; // Random interval up to 1.5 hours
+            setTimeout(characterPushups, interval);
+        }
+
+        scheduleNextCharacterPushups();
+    </script>
+</body>
+</html>
