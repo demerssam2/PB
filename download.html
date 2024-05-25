@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pushup Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: black;
+            color: white;
+        }
+        .character, .user {
+            margin: 20px;
+        }
+        .stats {
+            font-size: 18px;
+            margin: 10px;
+        }
+        .manual-update {
+            margin: 20px;
+        }
+        .manual-update input {
+            margin: 5px;
+        }
+        .highlight {
+            color: #7fff7f; /* Bright green */
+        }
+    </style>
+</head>
+<body>
+    <h1>Pushup Challenge</h1>
+    <div class="character">
+        <h2>Character</h2>
+        <div class="stats">
+            <p>Level: <span id="characterLevel" class="highlight">1.00</span></p>
+            <p>Pushups Completed Today: <span id="characterPushupsCompleted" class="highlight">0</span></p>
+            <p>Total Pushups Today: <span id="characterTotalPushups" class="highlight">0</span></p>
+            <p>Total Pushups Since Jan 1, 2024: <span id="characterTotalPushupsSince" class="highlight">1528</span></p>
+        </div>
+    </div>
+    <div class="user">
+        <h2>Your Stats</h2>
+        <div class="stats">
+            <p>Your Level: <span id="userLevel" class="highlight">1.00</span></p>
+            <p>Your Pushups Today: <span id="userPushups" class="highlight">0</span></p>
+            <p>Your Total Pushups Today: <span id="userTotalPushups" class="highlight">0</span></p>
+            <p>Your Total Pushups Since Jan 1, 2024: <span id="userTotalPushupsSince" class="highlight">1528</span></p>
+            <button onclick="doPushups()">Do 10 Pushups</button>
+        </div>
+        <div class="manual-update">
+            <h3>Manual Update</h3>
+            <label for="newUserLevel">Set Your Level: </label>
+            <input type="number" id="newUserLevel" step="0.01">
+            <button onclick="updateUserLevel()">Update Level</button>
+            <br>
+            <label for="newUserPushups">Set Your Pushups Today: </label>
+            <input type="number" id="newUserPushups">
+            <button onclick="updateUserPushups()">Update Pushups</button>
+            <br>
+            <label for="newUserTotalPushups">Set Your Total Pushups Today: </label>
+            <input type="number" id="newUserTotalPushups">
+            <button onclick="updateUserTotalPushups()">Update Total Pushups</button>
+            <br>
+            <label for="newUserTotalPushupsSince">Set Your Total Pushups Since Jan 1, 2024: </label>
+            <input type="number" id="newUserTotalPushupsSince">
+            <button onclick="updateUserTotalPushupsSince()">Update Total Pushups Since</button>
+            <br>
+            <label for="newCharacterLevel">Set Character Level: </label>
+            <input type="number" id="newCharacterLevel" step="0.01">
+            <button onclick="updateCharacterLevel()">Update Character Level</button>
+            <br>
+            <label for="newCharacterPushups">Set Character Pushups Today: </label>
+            <input type="number" id="newCharacterPushups">
+            <button onclick="updateCharacterPushups()">Update Character Pushups</button>
+            <br>
+            <label for="newCharacterTotalPushups">Set Character Total Pushups Today: </label>
+            <input type="number" id="newCharacterTotalPushups">
+            <button onclick="updateCharacterTotalPushups()">Update Character Total Pushups</button>
+            <br>
+            <label for="newCharacterTotalPushupsSince">Set Character Total Pushups Since Jan 1, 2024: </label>
+            <input type="number" id="newCharacterTotalPushupsSince">
+            <button onclick="updateCharacterTotalPushupsSince()">Update Character Total Pushups Since</button>
+        </div>
+    </div>
+
+    <script>
+        function getTorontoTime() {
+            const torontoOffset = -4; // Toronto is UTC-4 during Standard Time
+            const now = new Date();
+            const torontoTime = new Date(now.getTime() + torontoOffset * 60 * 60 * 1000);
+            return torontoTime;
+        }
+
+        const torontoDate = getTorontoTime().toLocaleDateString('en-US', { timeZone: 'America/Toronto' }); // Get current date in MM/DD/YYYY format for Toronto timezone
+        const startDate = new Date('2024-01-01');
+        const currentDate = new Date(torontoDate);
+        const timeDiff = currentDate - startDate;
+        const daysSinceStart = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+        const dailyPushups = 150; // Character does 150 pushups per day
+
+        const lastResetDate = localStorage.getItem('lastResetDate') || torontoDate;
+
+        let characterLevel = parseFloat(localStorage.getItem('characterLevel')) || 1.00;
+        let characterPushupsCompleted = lastResetDate === torontoDate ? parseInt(localStorage.getItem('characterPushupsCompleted')) || 0 : 0;
+        let characterTotalPushups = dailyPushups + characterPushupsCompleted;
+        let characterTotalPushupsSince = 1528; // Total pushups done by the character since Jan 1, 2024
+
+        let userLevel = parseFloat(localStorage.getItem('userLevel')) || 1.00;
+        let userPushups = lastResetDate === torontoDate ? parseInt(localStorage.getItem('userPushups')) || 0 : 0;
+        let userTotalPushups = parseInt(localStorage.getItem('userTotalPushups')) || 0;
+        let userTotalPushupsSince = 1528; // Total pushups done by the user since Jan 1, 2024
+
